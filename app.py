@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 from utils.prompt_loader import load_prompt
 from utils.chat_utils import set_client_and_model
 from utils.tool_loader import load_tool_schemas
-from tools import scrape, search, update_data
+from tools import create_scrape_tool, create_search_tool, create_update_data_tool
 from agent import call_agent
+from data_manager import DataPointsManager
 
 load_dotenv()
 
@@ -16,7 +17,7 @@ set_client_and_model(client, GPT_MODEL)
 
 
 def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_key: str, 
-                           user_prompt_key: str, dynamic_prompt_inserts: dict = None):
+                           user_prompt_key: str, data_manager: DataPointsManager, dynamic_prompt_inserts: dict = None):
     """
     Common function to execute scraping agents with different configurations.
     
@@ -25,6 +26,7 @@ def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_ke
         tool_names (list): List of tool names to load schemas for
         system_prompt_key (str): Key for the system prompt file
         user_prompt_key (str): Key for the user prompt file
+        data_manager (DataPointsManager): Manager for data points and scraping state
         dynamic_prompt_inserts (dict): Additional replacements for user prompt
     
     Returns:
@@ -33,18 +35,18 @@ def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_ke
     # Load tool schemas from JSON files
     tool_schemas = load_tool_schemas(tool_names)
     
-    # Available tool functions
+    # Available tool functions - create bound instances using factory functions
     available_tools = {
-        "search": search,
-        "scrape": scrape,
-        "update_data": update_data
+        "search": create_search_tool(data_manager),
+        "scrape": create_scrape_tool(data_manager),
+        "update_data": create_update_data_tool(data_manager)
     }
     
     # Map only the requested tool names to actual functions
     tools_map = {name: available_tools[name] for name in tool_names}
     
     # Get data points we still need to find
-    data_keys_to_search = [obj["name"] for obj in data_points if obj["value"] is None]
+    data_keys_to_search = data_manager.get_missing_data_points()
     
     if len(data_keys_to_search) > 0:
         # Load prompts from files
@@ -53,7 +55,7 @@ def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_ke
         # Base replacements
         user_prompt_replacements = {
             "entity_name": entity_name,
-            "links_scraped": str(links_scraped),
+            "links_scraped": str(data_manager.get_scraped_links()),
             "data_keys_to_search": str(data_keys_to_search)
         }
         
@@ -69,13 +71,14 @@ def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_ke
     return "No data points to search for"
 
 
-def website_scrape(entity_name: str, website: str):
+def website_scrape(entity_name: str, website: str, data_manager: DataPointsManager):
     """
     Scrape information about an entity from a specific website using scraping tools.
     
     Args:
         entity_name (str): Name of the entity to search for
         website (str): The website URL to scrape
+        data_manager (DataPointsManager): Manager for data points and scraping state
     
     Returns:
         str: Response from the agent with found information
@@ -85,16 +88,18 @@ def website_scrape(entity_name: str, website: str):
         tool_names=["scrape", "update_data"],
         system_prompt_key='website_scrape_system',
         user_prompt_key='website_scrape_user',
+        data_manager=data_manager,
         dynamic_prompt_inserts={"website": website}
     )
 
 
-def internet_search_scrape(entity_name: str):
+def internet_search_scrape(entity_name: str, data_manager: DataPointsManager):
     """
     Search the internet and scrape relevant URLs to find information about an entity.
     
     Args:
         entity_name (str): Name of the entity to search for
+        data_manager (DataPointsManager): Manager for data points and scraping state
     
     Returns:
         str: Response from the agent with found information
@@ -103,13 +108,12 @@ def internet_search_scrape(entity_name: str):
         entity_name=entity_name,
         tool_names=["search", "scrape", "update_data"],
         system_prompt_key='internet_search_scrape_system',
-        user_prompt_key='internet_search_scrape_user'
+        user_prompt_key='internet_search_scrape_user',
+        data_manager=data_manager
     )
 
-# Initialize global variables
-links_scraped = []
-
-data_points = [
+# Define initial data points structure
+initial_data_points = [
     {"name": "catering_offering_for_employees", "value": None, "reference": None},
     {"name": "num_employees", "value": None, "reference": None},
     {"name": "office_locations", "value": None, "reference": None},
@@ -121,8 +125,11 @@ if __name__ == "__main__":
     entity_name = "Discord"
     website = "https://discord.com/"
 
-    response1 = website_scrape(entity_name, website)
-    # response2 = internet_search_scrape(entity_name)
+    # Initialize data manager
+    data_manager = DataPointsManager(initial_data_points)
+
+    # response1 = website_scrape(entity_name, website, data_manager)
+    response2 = internet_search_scrape(entity_name, data_manager)
 
     print("------")
-    print(f"Data points found: {data_points}")
+    print(f"Data points found: {data_manager.get_current_state()}")
