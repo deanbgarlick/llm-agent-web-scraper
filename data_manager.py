@@ -5,6 +5,17 @@ This module provides centralized management of data points and scraping state
 for AI agent sessions.
 """
 
+data_manager = None
+
+def get_data_manager(initial_data_points=None):
+    global data_manager
+    if data_manager is None:
+        if initial_data_points is None:
+            raise ValueError("Initial data points are required to create a data manager")
+        else:
+            data_manager = DataPointsManager(initial_data_points)
+    return data_manager
+
 class DataPointsManager:
     def __init__(self, initial_data_points):
         """
