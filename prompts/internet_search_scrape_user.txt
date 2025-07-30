@@ -1,0 +1,8 @@
+Entity to search: {entity_name}
+
+Links we already scraped: {links_scraped}
+
+Data points to find:
+{data_keys_to_search}
+
+Start by searching for the entity, then scrape relevant URLs to find the required information. 

@@ -1,0 +1,9 @@
+Entity to search: {entity_name}
+Website to focus on: {website}
+
+Links we already scraped: {links_scraped}
+
+Data points to find:
+{data_keys_to_search}
+
+Start by scraping the main website URL, then follow relevant links to find the required information. 

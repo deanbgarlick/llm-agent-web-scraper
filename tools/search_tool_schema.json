@@ -1,0 +1,21 @@
+{
+    "type": "function",
+    "function": {
+        "name": "search",
+        "description": "Search for relevant URLs based on a query",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The query to search for"
+                },
+                "entity_name": {
+                    "type": "string",
+                    "description": "Name of the entity being searched for"
+                }
+            },
+            "required": ["query", "entity_name"]
+        }
+    }
+} 

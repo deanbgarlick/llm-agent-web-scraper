@@ -1,0 +1,17 @@
+{
+    "type": "function",
+    "function": {
+        "name": "scrape",
+        "description": "Scrape a URL for information",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "the url of the website to scrape"
+                }
+            },
+            "required": ["url"]
+        }
+    }
+} 

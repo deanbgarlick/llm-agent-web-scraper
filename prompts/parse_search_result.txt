@@ -1,0 +1,19 @@
+Given the following search results about {entity_name}:
+
+{search_results}
+
+Please extract specific information about {entity_name} regarding these data points: {data_points}
+
+Return the information in this exact JSON format:
+{{
+    "related_urls": ["url1", "url2", "url3"],
+    "info_found": [
+        {{
+            "data_point": "name_of_data_point",
+            "value": "extracted_value",
+            "reference": "source_url"
+        }}
+    ]
+}}
+
+Only include data points where you found concrete information. If no information is found for a data point, omit it from the response. 

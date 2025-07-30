@@ -1,0 +1,36 @@
+{
+    "type": "function",
+    "function": {
+        "name": "update_data",
+        "description": "Save data points found for later retrieval; only pass on data points that we found",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "datas_update": {
+                    "type": "array",
+                    "description": "the data points to update",
+                    "items": {
+                        "type": "object",
+                        "description": "the data point to update, should follow specific json format",
+                        "properties": {
+                            "data_point": {
+                                "type": "string",
+                                "description": "the name of the data point"
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "the value of the data point"
+                            },
+                            "reference": {
+                                "type": "string",
+                                "description": "the reference URL of the data point"
+                            }
+                        },
+                        "required": ["data_point", "value", "reference"]
+                    }
+                }
+            },
+            "required": ["datas_update"]
+        }
+    }
+} 
