@@ -9,10 +9,10 @@ components of the system.
 from typing import Dict, List, Any, Callable
 from utils.pretty_print import pretty_print_conversation
 from utils.chat_utils import chat_completion_request
-from event import publish
-from agent.event_types import AgentResponseEventData, ToolCallResponseEventData, AgentFinishedEventData, ToolCallErrorEventData, AgentCallErrorEventData
+from agent.types import AgentResponseEventData, ToolCallResponseEventData, AgentFinishedEventData, ToolCallErrorEventData, AgentCallErrorEventData
 from tools.executor import call_tool
-from agent.event_publishers import publish_agent_response, publish_tool_call_response, publish_tool_call_error, publish_agent_call_error, publish_agent_finished
+from agent.publishers import publish_agent_response, publish_tool_call_response, publish_tool_call_error, publish_agent_call_error, publish_agent_finished
+
 
 def start_agent(prompt: str, system_prompt: str, tools_schema: List[Dict], tools_map: Dict, plan: bool = False) -> str:
     """
@@ -92,16 +92,16 @@ def send_messages_to_agent(
     ))
 
 
-def handle_agent_response(event_data: AgentResponseEventData):
+def process_agent_response(event_data: AgentResponseEventData):
     # Handle tool calls if any
 
     current_choice = event_data.chat_response.choices[0]
-    assistant_message = {
-        "role": "assistant",
-        "content": current_choice.message.content,
-        "tool_calls": current_choice.message.tool_calls
-    }
-    event_data.messages.append(assistant_message)
+    # assistant_message = {
+    #     "role": "assistant",
+    #     "content": current_choice.message.content,
+    #     "tool_calls": current_choice.message.tool_calls
+    # }
+    # event_data.messages.append(assistant_message)
 
     # Check if conversation should end
     if current_choice.finish_reason == "stop":
@@ -111,37 +111,42 @@ def handle_agent_response(event_data: AgentResponseEventData):
         return
     
     elif current_choice.finish_reason == "tool_calls":
-
-        tool_calls = current_choice.message.tool_calls
-        for tool_call in tool_calls:
-            function = tool_call.function
-            try:
-
-                tool_message = call_tool(event_data.tools_map, tool_call)
-                event_data.messages.append(tool_message)
-                publish_tool_call_response(ToolCallResponseEventData(
-                    messages=event_data.messages,
-                    tools_map=event_data.tools_map,
-                    tools_schema=event_data.tools_schema
-                ))
-                
-            except Exception as e:
-                print(f"Tool call failed: {str(e)}")
-                error_message = {
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "name": function.name,
-                    "content": f"Error: {str(e)}"
-                }
-                event_data.messages.append(error_message)
-                publish_tool_call_error(ToolCallErrorEventData(
-                    messages=event_data.messages,
-                    tools_map=event_data.tools_map,
-                    tools_schema=event_data.tools_schema,
-                    error=e
-                ))
-            finally:
-                return
+        _call_chosen_tools(event_data)
     else:
         raise ValueError(f"Invalid finish reason: {current_choice.finish_reason}")
         
+
+def _call_chosen_tools(event_data: AgentResponseEventData):
+
+    current_choice = event_data.chat_response.choices[0]
+
+    tool_calls = current_choice.message.tool_calls
+    for tool_call in tool_calls:
+        function = tool_call.function
+        try:
+
+            tool_message = call_tool(event_data.tools_map, tool_call)
+            event_data.messages.append(tool_message)
+            publish_tool_call_response(ToolCallResponseEventData(
+                messages=event_data.messages,
+                tools_map=event_data.tools_map,
+                tools_schema=event_data.tools_schema
+            ))
+            
+        except Exception as e:
+            print(f"Tool call failed: {str(e)}")
+            error_message = {
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "name": function.name,
+                "content": f"Error: {str(e)}"
+            }
+            event_data.messages.append(error_message)
+            publish_tool_call_error(ToolCallErrorEventData(
+                messages=event_data.messages,
+                tools_map=event_data.tools_map,
+                tools_schema=event_data.tools_schema,
+                error=e
+            ))
+        finally:
+            return

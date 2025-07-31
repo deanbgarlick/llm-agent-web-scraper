@@ -1,5 +1,5 @@
 """
-Tool execution functionality for handling OpenAI tool calls.
+Utility functions for handling tool calls and tool-related operations.
 """
 
 import json
@@ -17,7 +17,7 @@ def call_tool(tools_map: Dict[str, Callable[..., Any]], tool_call: ChatCompletio
     Returns:
         Dict[str, str]: A message containing the tool call results in OpenAI's expected format
     """
-    args = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments, str) else tool_call.function.arguments
+    args = json.loads(tool_call.arguments) if isinstance(tool_call.arguments, str) else tool_call.arguments
     result = tools_map[tool_call.function.name](**args)
     tool_message = {
         "role": "tool",

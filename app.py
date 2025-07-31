@@ -4,7 +4,9 @@ from utils.prompt_loader import load_prompt
 from utils.chat_utils import set_client_and_model
 from utils.tool_loader import load_tool_schemas
 from tools import scrape, search, update_data
-from agent import start_agent
+from agent.handlers import setup_event_handlers as setup_agent_event_handlers
+from agent.agent import start_agent
+from data_manager import get_data_manager
 
 load_dotenv()
 
@@ -13,7 +15,20 @@ GPT_MODEL = "gpt-4-turbo-2024-04-09"
 
 # Initialize chat utilities with client and model
 set_client_and_model(client, GPT_MODEL)
+setup_agent_event_handlers()
 
+# Initialize global variables
+links_scraped = []
+
+data_points = [
+    {"name": "catering_offering_for_employees", "value": None, "reference": None},
+    {"name": "num_employees", "value": None, "reference": None},
+    {"name": "office_locations", "value": None, "reference": None},
+    # {"name": "main_product", "value": None, "reference": None},
+]
+
+# Initialize the data manager with our data points
+get_data_manager(initial_data_points=data_points)
 
 def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_key: str, 
                            user_prompt_key: str, dynamic_prompt_inserts: dict = None):
@@ -105,16 +120,6 @@ def internet_search_scrape(entity_name: str):
         system_prompt_key='internet_search_scrape_system',
         user_prompt_key='internet_search_scrape_user'
     )
-
-# Initialize global variables
-links_scraped = []
-
-data_points = [
-    {"name": "catering_offering_for_employees", "value": None, "reference": None},
-    {"name": "num_employees", "value": None, "reference": None},
-    {"name": "office_locations", "value": None, "reference": None},
-    # {"name": "main_product", "value": None, "reference": None},
-]
 
 # Example usage (commented out)
 if __name__ == "__main__":

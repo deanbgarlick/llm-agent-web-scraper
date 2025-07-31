@@ -1,5 +1,6 @@
 from agent.types import ToolCallResponseEventData, ToolCallErrorEventData, AgentFinishedEventData, AgentResponseEventData, AgentCallErrorEventData
-from agent.agent import send_messages_to_agent, memory_optimise, process_agent_response
+from agent.agent import send_messages_to_agent, process_agent_response
+from utils.chat_utils import memory_optimise
 from event import subscribe
 from utils.pretty_print import pretty_print_conversation
 
