@@ -30,7 +30,10 @@ def chat_completion_request(messages, tool_choice, tools, model=None):
         model (str, optional): Model to use, defaults to global GPT_MODEL
     
     Returns:
-        OpenAI response object or Exception if failed
+        OpenAI response object
+    
+    Raises:
+        Exception: If the API call fails after retries
     """
     if not client:
         raise ValueError("Client not initialized. Call set_client_and_model() first.")
@@ -47,7 +50,10 @@ def chat_completion_request(messages, tool_choice, tools, model=None):
     except Exception as e:
         print("Unable to generate ChatCompletion response")
         print(f"Exception: {e}")
-        return e
+        print(f"\n\n\n the messages were: {messages}")
+        print(f"\n\n\n the tools were: {tools}")
+        print(f"\n\n\n the tool choice was: {tool_choice}")
+        raise e
 
 def memory_optimise(messages: list):
     """
