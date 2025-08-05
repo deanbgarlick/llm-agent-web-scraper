@@ -2,7 +2,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from utils.prompt_loader import load_prompt
 from utils.chat_utils import set_client_and_model
-from utils.tool_loader import load_tool_schemas
+from tools.load import load_tool_schemas
 from tools import scrape, search, update_data
 from agent.handlers import setup_event_handlers as setup_agent_event_handlers
 from agent.agent import start_agent

@@ -3,12 +3,9 @@
         "scrape",
         "update_data"
     ],
-    "internet_search_scrape": [
+    "search_and_scrape": [
         "search",
         "scrape", 
-        "update_data"
-    ],
-    "data_analysis": [
         "update_data"
     ],
     "all_tools": [
