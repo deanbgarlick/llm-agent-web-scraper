@@ -126,8 +126,8 @@ if __name__ == "__main__":
     # Initialize the data manager with our data points
     get_data_point_manager(initial_data_points=data_points)
 
-    response1 = website_scrape(entity_name, website)
-    # response2 = internet_search_scrape(entity_name)
+    # response1 = website_scrape(entity_name, website)
+    response2 = internet_search_scrape(entity_name)
 
     print("------")
     print(f"Data points found: {get_data_point_manager().get_current_state()}")

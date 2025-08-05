@@ -127,11 +127,6 @@ def _call_chosen_tools(event_data: AgentResponseEventData):
 
             tool_message = call_tool(event_data.tools_map, tool_call)
             event_data.messages.append(tool_message)
-            publish_tool_call_response(ToolCallResponseEventData(
-                messages=event_data.messages,
-                tools_map=event_data.tools_map,
-                tools_schema=event_data.tools_schema
-            ))
             
         except Exception as e:
             print(f"Tool call failed: {str(e)}")
@@ -148,4 +143,10 @@ def _call_chosen_tools(event_data: AgentResponseEventData):
                 tools_schema=event_data.tools_schema,
                 error=e
             ))
+
+    publish_tool_call_response(ToolCallResponseEventData(
+        messages=event_data.messages,
+        tools_map=event_data.tools_map,
+        tools_schema=event_data.tools_schema
+    ))
     return
