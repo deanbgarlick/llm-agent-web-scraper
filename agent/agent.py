@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Callable
 from utils.pretty_print import pretty_print_conversation
 from utils.chat_utils import chat_completion_request
 from agent.types import AgentResponseEventData, ToolCallResponseEventData, AgentFinishedEventData, ToolCallErrorEventData, AgentCallErrorEventData
-from tools.executor import call_tool
+from tools.call_tool import call_tool
 from agent.publishers import publish_agent_response, publish_tool_call_response, publish_tool_call_error, publish_agent_call_error, publish_agent_finished
 
 
@@ -127,11 +127,6 @@ def _call_chosen_tools(event_data: AgentResponseEventData):
 
             tool_message = call_tool(event_data.tools_map, tool_call)
             event_data.messages.append(tool_message)
-            publish_tool_call_response(ToolCallResponseEventData(
-                messages=event_data.messages,
-                tools_map=event_data.tools_map,
-                tools_schema=event_data.tools_schema
-            ))
             
         except Exception as e:
             print(f"Tool call failed: {str(e)}")
@@ -148,5 +143,10 @@ def _call_chosen_tools(event_data: AgentResponseEventData):
                 tools_schema=event_data.tools_schema,
                 error=e
             ))
-        finally:
-            return
+
+    publish_tool_call_response(ToolCallResponseEventData(
+        messages=event_data.messages,
+        tools_map=event_data.tools_map,
+        tools_schema=event_data.tools_schema
+    ))
+    return

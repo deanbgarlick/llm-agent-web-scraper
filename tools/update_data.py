@@ -1,4 +1,4 @@
-from data_manager import get_data_manager
+from data_point_manager import get_data_point_manager
 
 def update_data(datas_update):
     """
@@ -12,6 +12,6 @@ def update_data(datas_update):
     """
 
     for data in datas_update:
-        get_data_manager().update_data_point(data["data_point"], data["value"], data["reference"])
+        get_data_point_manager().update_data_point(data["data_point"], data["value"], data["reference"])
     
-    return f"data updated: {get_data_manager().get_current_state()}" 
+    return f"data updated: {get_data_point_manager().get_current_state()}" 

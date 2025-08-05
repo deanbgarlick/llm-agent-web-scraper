@@ -2,7 +2,7 @@ import json
 from firecrawl import FirecrawlApp
 from utils.prompt_loader import load_prompt
 import utils.chat_utils as chat_utils
-from data_manager import get_data_manager
+from data_point_manager import get_data_point_manager
 
 def search(query, entity_name: str):
     """
@@ -25,7 +25,7 @@ def search(query, entity_name: str):
         search_result_str = str(search_result)
         
         # Get list of data points we still need to find
-        data_keys_to_search = get_data_manager().get_missing_data_points()
+        data_keys_to_search = get_data_point_manager().get_missing_data_points()
         
         # Load and format the prompt template
         replacements = {

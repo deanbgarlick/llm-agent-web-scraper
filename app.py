@@ -6,29 +6,10 @@ from utils.tool_loader import load_tool_schemas
 from tools import scrape, search, update_data
 from agent.handlers import setup_event_handlers as setup_agent_event_handlers
 from agent.agent import start_agent
-from data_manager import get_data_manager
+from data_point_manager import get_data_point_manager
 
 load_dotenv()
 
-client = OpenAI()
-GPT_MODEL = "gpt-4-turbo-2024-04-09"
-
-# Initialize chat utilities with client and model
-set_client_and_model(client, GPT_MODEL)
-setup_agent_event_handlers()
-
-# Initialize global variables
-links_scraped = []
-
-data_points = [
-    {"name": "catering_offering_for_employees", "value": None, "reference": None},
-    {"name": "num_employees", "value": None, "reference": None},
-    {"name": "office_locations", "value": None, "reference": None},
-    # {"name": "main_product", "value": None, "reference": None},
-]
-
-# Initialize the data manager with our data points
-get_data_manager(initial_data_points=data_points)
 
 def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_key: str, 
                            user_prompt_key: str, dynamic_prompt_inserts: dict = None):
@@ -59,7 +40,7 @@ def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_ke
     tools_map = {name: available_tools[name] for name in tool_names}
     
     # Get data points we still need to find
-    data_keys_to_search = [obj["name"] for obj in data_points if obj["value"] is None]
+    data_keys_to_search = get_data_point_manager().get_missing_data_points()
     
     if len(data_keys_to_search) > 0:
         # Load prompts from files
@@ -126,8 +107,27 @@ if __name__ == "__main__":
     entity_name = "Discord"
     website = "https://discord.com/"
 
+    client = OpenAI()
+    GPT_MODEL = "gpt-4-turbo-2024-04-09"
+
+    # Initialize chat utilities with client and model
+    set_client_and_model(client, GPT_MODEL)
+    setup_agent_event_handlers()
+
+    # Initialize global variables
+    links_scraped = []
+
+    data_points = [
+        {"name": "num_employees", "value": None, "reference": None},
+        {"name": "office_locations", "value": None, "reference": None},
+        {"name": "main_product", "value": None, "reference": None},
+    ]
+
+    # Initialize the data manager with our data points
+    get_data_point_manager(initial_data_points=data_points)
+
     # response1 = website_scrape(entity_name, website)
     response2 = internet_search_scrape(entity_name)
 
     print("------")
-    print(f"Data points found: {data_points}")
+    print(f"Data points found: {get_data_point_manager().get_current_state()}")
