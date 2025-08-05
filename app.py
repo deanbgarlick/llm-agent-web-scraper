@@ -6,7 +6,7 @@ from utils.tool_loader import load_tool_schemas
 from tools import scrape, search, update_data
 from agent.handlers import setup_event_handlers as setup_agent_event_handlers
 from agent.agent import start_agent
-from data_manager import get_data_manager
+from data_point_manager import get_data_point_manager
 
 load_dotenv()
 
@@ -40,7 +40,7 @@ def _execute_scraping_agent(entity_name: str, tool_names: list, system_prompt_ke
     tools_map = {name: available_tools[name] for name in tool_names}
     
     # Get data points we still need to find
-    data_keys_to_search = get_data_manager().get_missing_data_points()
+    data_keys_to_search = get_data_point_manager().get_missing_data_points()
     
     if len(data_keys_to_search) > 0:
         # Load prompts from files
@@ -124,10 +124,10 @@ if __name__ == "__main__":
     ]
 
     # Initialize the data manager with our data points
-    get_data_manager(initial_data_points=data_points)
+    get_data_point_manager(initial_data_points=data_points)
 
-    # response1 = website_scrape(entity_name, website)
-    response2 = internet_search_scrape(entity_name)
+    response1 = website_scrape(entity_name, website)
+    # response2 = internet_search_scrape(entity_name)
 
     print("------")
-    print(f"Data points found: {get_data_manager().get_current_state()}")
+    print(f"Data points found: {get_data_point_manager().get_current_state()}")

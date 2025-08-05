@@ -148,5 +148,4 @@ def _call_chosen_tools(event_data: AgentResponseEventData):
                 tools_schema=event_data.tools_schema,
                 error=e
             ))
-        finally:
-            return
+    return

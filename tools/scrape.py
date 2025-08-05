@@ -1,5 +1,5 @@
 from firecrawl import FirecrawlApp
-from data_manager import get_data_manager
+from data_point_manager import get_data_point_manager
 
 
 def scrape(url):
@@ -33,7 +33,7 @@ def scrape(url):
             markdown_content = str(scraped_data)
             
         # Add scraped link to manager
-        get_data_manager().add_scraped_link(url)
+        get_data_point_manager().add_scraped_link(url)
         return markdown_content
         
     except Exception as e:
