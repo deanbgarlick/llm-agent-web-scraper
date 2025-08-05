@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Callable
 from utils.pretty_print import pretty_print_conversation
 from utils.chat_utils import chat_completion_request
 from agent.types import AgentResponseEventData, ToolCallResponseEventData, AgentFinishedEventData, ToolCallErrorEventData, AgentCallErrorEventData
-from tools.executor import call_tool
+from tools.call_tool import call_tool
 from agent.publishers import publish_agent_response, publish_tool_call_response, publish_tool_call_error, publish_agent_call_error, publish_agent_finished
 
 
